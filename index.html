@@ -13,7 +13,7 @@ input,textarea,select{width:100%;font:inherit;padding:11px;border-radius:12px;bo
 .a{background:#5b4bdb1a;border-radius:10px;padding:8px 10px;margin-top:6px}.m{padding:10px 12px;border-radius:16px;margin:6px 0;max-width:90%;white-space:pre-wrap}.me{background:var(--pr);color:#fff;margin-inline-start:auto}.bot{background:var(--bg);border:1px solid var(--bd)}
 .mu{color:var(--mu);font-size:13px}.h{display:none}.opt{display:block;padding:9px;margin:5px 0;border:1px solid var(--bd);border-radius:12px}.opt input{width:auto;margin-inline-end:8px}.ok{color:#16a34a}.no{color:#dc2626}
 #bar{position:fixed;bottom:0;left:0;right:0;background:var(--c);border-top:1px solid var(--bd);display:flex;justify-content:space-around;padding:8px 4px}#bar button{border:0;background:none;color:var(--mu);font:inherit;font-size:12px}#bar b{display:block;font-size:20px;font-weight:400}
-footer{text-align:center;color:var(--mu);font-size:13px;margin:20px 0}td{padding:5px;border-bottom:1px solid var(--bd);font-size:13px}img.p{max-width:100%;border-radius:10px;margin-top:8px}
+footer{text-align:center;color:var(--mu);font-size:13px;margin:20px 0}th{padding:5px;font-size:12px;text-align:start;color:var(--mu)}td{padding:5px;border-bottom:1px solid var(--bd);font-size:13px}img.p{max-width:100%;border-radius:10px;margin-top:8px}
 </style></head><body>
 <header><h1>📚 مُلخّصاتي | أولى ثانوي</h1><div><span id="who" class="mu" style="color:#fff"></span> <button class="b" style="padding:4px 10px;display:none" id="lo" onclick="auth.signOut()">خروج</button></div></header>
 <main>
@@ -23,6 +23,7 @@ footer{text-align:center;color:var(--mu);font-size:13px;margin:20px 0}td{padding
  <button class="b w" onclick="go()" id="gb">دخول</button><div id="le" class="no"></div>
  <p class="mu" onclick="tog()" style="cursor:pointer;text-decoration:underline" id="tg">معنديش حساب – سجّل</p></div>
 <div id="app" class="h">
+ <div id="vb" class="c h" style="border-color:#dc2626"></div>
  <section id="home"><button class="b w" onclick="show('subj')">📝 التقييمات (1 → 10)</button><button class="b w" onclick="show('exam')">🎯 امتحان بالذكاء الاصطناعي</button><button class="b w o" onclick="show('chat')">🤖 المساعد الذكي</button><button class="b w o" onclick="openK()">🔒 منصة كيريو</button><button class="b w o" onclick="openG()">💬 مجموعة الطلاب</button><button class="b w o" id="hm" onclick="openM()">✉️ رسائل المدرس</button></section>
  <section id="subj" class="h"><h3>اختار المادة</h3><div class="g" id="subjs"></div></section>
  <section id="asm" class="h"><h3 id="asmT"></h3><div class="g" id="asms"></div><button class="b o" onclick="show('subj')">رجوع</button></section>
@@ -42,7 +43,7 @@ footer{text-align:center;color:var(--mu);font-size:13px;margin:20px 0}td{padding
   <div class="c"><b>👥 الأعضاء</b><div id="mem"></div></div>
   <div class="c"><b>🔗 رابط خانة كيريو</b><p class="mu">اللي هيظهر للطالب بعد ما يدخل الكود.</p><input id="kn" placeholder="العنوان (مثال: منصة كيريو)"><input id="ku" placeholder="https://..."><input id="kd" placeholder="ملاحظة (اختياري)"><button class="b w" onclick="saveK()">حفظ الرابط</button><div id="ks" class="mu"></div></div>
   <div class="c"><b>🎯 النتائج والإجابات</b><div id="res"></div></div>
-  <div class="c"><b>👥 الدخول والبحث</b><table id="logs"></table></div></section>
+  <div class="c"><b>👥 الدخول والبحث</b><input id="lf" placeholder="🔍 ابحث بالاسم أو الحدث أو كلمة البحث..." oninput="rLogs()" style="margin-top:8px"><div style="overflow-x:auto"><table id="logs" style="width:100%"></table></div></div></section>
 </div>
 <footer>© 2026 محمود محمد – جميع الحقوق محفوظة</footer></main>
 <div id="bar" class="h"></div>
@@ -73,11 +74,18 @@ async function go(){const e=$("em").value.trim(),p=$("pw").value,er=$("le");er.t
 auth.onAuthStateChanged(u=>{if(busy)return;if(!u){$("app").classList.add("h");$("bar").classList.add("h");$("lo").style.display="none";$("login").classList.remove("h");return}boot(u)});
 async function boot(u){const d=await fs.collection("users").doc(u.uid).get();if(!d.exists){await auth.signOut();return}
  const p=d.data();admin=u.email===ADMIN_EMAIL;if(!admin){const bn=await fs.collection("banned").doc(u.uid).get().catch(()=>null);if(bn&&bn.exists){await auth.signOut();$("le").textContent="الحساب ده محظور من الموقع";return}}me=admin?"محمود محمد (أدمن)":p.name+" ("+p.cls+")";
- $("login").classList.add("h");$("app").classList.remove("h");$("bar").classList.remove("h");$("lo").style.display="inline";$("who").textContent=me;
+ $("login").classList.add("h");$("app").classList.remove("h");$("bar").classList.remove("h");$("lo").style.display="inline";$("who").textContent=me;chkV(u);
  $("subjs").innerHTML=SUBJ.map(s=>`<div class="c t" onclick="pick('${s[0]}')"><i>${s[1]}</i>${s[0]}</div>`).join("");
  $("es").innerHTML=$("as").innerHTML=SUBJ.map(s=>"<option>"+s[0]+"</option>").join("");$("es").insertAdjacentHTML("afterbegin","<option>تلقائي (حسب الدرس)</option>");if(admin)$("hm").style.display="none";$("an").innerHTML=[1,2,3,4,5,6,7,8,9,10].map(n=>"<option>"+n+"</option>").join("");
  $("bar").innerHTML=`<button onclick="show('home')"><b>🏠</b>الرئيسية</button><button onclick="show('subj')"><b>📝</b>التقييمات</button><button onclick="show('exam')"><b>🎯</b>امتحان</button><button onclick="show('chat')"><b>🤖</b>المساعد</button>`+(admin?`<button onclick="goAdmin()"><b>🔒</b>الأدمن</button>`:"");
  subs.forEach(f=>f());subs=[fs.collection("items").onSnapshot(s=>{ITEMS=s.docs.map(d=>({id:d.id,...d.data()}));rItems()})];show("home");log("دخول")}
+let LOGS=[];
+function rLogs(){const el=$("logs");if(!el)return;const f=($("lf")?$("lf").value:"").trim().toLowerCase();
+ const L=LOGS.filter(x=>!f||(x.name+" "+x.ev+" "+x.d).toLowerCase().indexOf(f)>=0);
+ el.innerHTML='<tr><th>الوقت</th><th>الاسم</th><th>الحدث</th><th>التفاصيل</th><th></th></tr>'+(L.map(x=>`<tr><td>${new Date(x.t).toLocaleString("ar-EG",{day:"numeric",month:"numeric",hour:"numeric",minute:"2-digit"})}</td><td>${esc(x.name)}</td><td>${esc(x.ev)}</td><td>${esc(x.d)}</td><td>${x.uid&&String(x.name).indexOf("(أدمن)")<0?(BANS.has(x.uid)?`<button class="b" style="padding:2px 8px" onclick="unbanU('${esc(x.uid)}')">فك</button>`:`<button class="b o" style="padding:2px 8px" onclick="banU('${esc(x.uid)}')">🚫</button>`):""}</td></tr>`).join("")||'<tr><td class="mu">مفيش سجلات</td></tr>')}
+function chkV(u){const v=$("vb");if(admin&&!u.emailVerified){v.classList.remove("h");v.innerHTML='<b class="no">⚠️ إيميل الأدمن مش متأكَّد منه</b><p class="mu">قواعد الحماية بتطلب تأكيد الإيميل، عشان كده السجلات والأعضاء والحظر مش بتظهر. دوس «ابعت رسالة التأكيد»، افتح الرابط اللي هيوصل على إيميلك، وبعدها دوس «أكدت، حدّث».</p><button class="b w" onclick="sendV()">📧 ابعت رسالة التأكيد</button><button class="b w o" onclick="refV()">✅ أكدت، حدّث</button><div id="vs" class="mu"></div>'}else v.classList.add("h")}
+async function sendV(){try{await auth.currentUser.sendEmailVerification();$("vs").textContent="اتبعتت الرسالة لإيميلك (شوف Spam كمان)"}catch(e){$("vs").textContent="حصل خطأ، جرّب بعد شوية"}}
+async function refV(){try{await auth.currentUser.reload();await auth.currentUser.getIdToken(true);if(auth.currentUser.emailVerified)location.reload();else $("vs").textContent="لسه مش متأكَّد، افتح الرابط اللي في الإيميل الأول"}catch(e){$("vs").textContent="حصل خطأ"}}
 function pick(s){$("asmT").textContent=s;$("asms").innerHTML=[1,2,3,4,5,6,7,8,9,10].map(n=>`<div class="c t" onclick="op('${s}',${n})">التقييم ${n}</div>`).join("");log("اختار مادة",s);show("asm")}
 function op(s,n){$("viewT").textContent=s+" – التقييم "+n;const L=ITEMS.filter(x=>x.s===s&&x.n===n).sort((x,y)=>x.t-y.t);
  $("qs").innerHTML=L.length?L.map((x,i)=>`<div class="c"><b>${i+1}. ${esc(x.q)}</b>${x.a?`<div class="a">✅ ${esc(x.a)}</div>`:""}${x.img?`<img class="p" src="${x.img}">`:""}</div>`).join(""):'<div class="c mu">لسه مفيش أسئلة</div>';log("فتح تقييم",s+"/"+n);show("view")}
@@ -102,7 +110,7 @@ async function genExam(){let s=$("es").value;const l=$("el").value.trim();if(!l)
 async function sub(){if(!EX)return;let sc=0;const ans=EX.qs.map((x,i)=>{const c=document.querySelector(`input[name=q${i}]:checked`),p=c?+c.value:-1;if(p===x.a)sc++;$("ex"+i).innerHTML=`<div class="a ${p===x.a?"ok":"no"}">${p===x.a?"✅ صح":"❌ الصح: "+esc(x.o[x.a])}<br><span class="mu">${esc(x.e)}</span></div>`;return{q:x.q,p:p<0?"لم يجب":x.o[p],r:x.o[x.a]}});
  $("sb").outerHTML=`<div class="c t">النتيجة: ${sc} / ${EX.qs.length}</div>`;fs.collection("results").add({t:Date.now(),uid:auth.currentUser.uid,name:me,s:EX.s,l:EX.l,sc,tot:EX.qs.length,ans}).catch(()=>{});EX=null}
 function goAdmin(){if(!admin)return;show("admin");if(subs.length>1)return;adminExtra();
- subs.push(fs.collection("logs").orderBy("t","desc").limit(80).onSnapshot(s=>{$("logs").innerHTML=s.docs.map(d=>{const x=d.data();return`<tr><td>${new Date(x.t).toLocaleTimeString("ar-EG")}</td><td>${esc(x.name)}</td><td>${esc(x.ev)}</td><td>${esc(x.d)}</td></tr>`}).join("")}));
+ subs.push(fs.collection("logs").orderBy("t","desc").limit(150).onSnapshot(s=>{LOGS=s.docs.map(d=>d.data());rLogs()},()=>{$("logs").innerHTML='<tr><td class="no">مقدرتش أحمّل السجلات (اتأكد إن إيميل الأدمن متأكَّد منه)</td></tr>'}));
  subs.push(fs.collection("results").orderBy("t","desc").limit(40).onSnapshot(s=>{$("res").innerHTML=s.docs.map(d=>{const x=d.data();return`<details class="a"><summary>${esc(x.name)} – ${esc(x.s)}/${esc(x.l)} – <b>${x.sc}/${x.tot}</b></summary>${(x.ans||[]).map((a,i)=>`<div class="mu">${i+1}. ${esc(a.q)}<br>اختار: ${esc(a.p)} | الصح: ${esc(a.r)}</div>`).join("")}</details>`}).join("")||'<p class="mu">لسه مفيش نتائج</p>'}));
  subs.push(fs.collection("codes").onSnapshot(s=>{$("codes").innerHTML=s.docs.map(d=>`<div class="a"><b dir="ltr">${esc(d.id)}</b> <span class="mu">${d.data().k?"🔒 كيريو":"تسجيل"}</span> <button class="b o" style="padding:2px 10px" onclick="fs.collection('codes').doc('${d.id}').delete()">حذف</button></div>`).join("")}))}
 async function kOK(c){try{const d=await fs.collection("codes").doc(c).get();return d.exists&&d.data().k===1}catch(e){return false}}
@@ -126,11 +134,11 @@ function openM(uid,name){show("msg");const u=uid||auth.currentUser.uid;curU=u;cu
  mu=fs.collection("dm").where("uid","==",u).onSnapshot(s=>{const a=s.docs.map(d=>d.data()).sort((x,y)=>x.t-y.t);$("mm").innerHTML=a.length?a.map(x=>`<div class="m ${(x.from==="admin")===admin?"me":"bot"}" style="max-width:95%">${esc(x.text)}</div>`).join(""):'<p class="mu">مفيش رسائل لسه</p>';$("mm").scrollTop=1e9},()=>{$("me2").textContent="مقدرتش أحمّل الرسائل"})}
 async function sendM(){const t=$("mi").value.trim();if(!t||!curU)return;if(!admin&&bad(t)){$("me2").textContent="الرسالة فيها ألفاظ غير مناسبة ولم تُرسل";return}
  try{await fs.collection("dm").add({t:Date.now(),uid:curU,from:admin?"admin":"user",name:admin?"المدرس":me,text:t});$("mi").value="";$("me2").textContent=""}catch(e){$("me2").textContent="مقدرتش أرسل (ممكن يكون الحساب محظور)"}}
-function banU(id){if(admin&&id!==auth.currentUser.uid)fs.collection("banned").doc(id).set({t:Date.now()})}
-function unbanU(id){if(admin)fs.collection("banned").doc(id).delete()}
+function banU(id){if(admin&&id!==auth.currentUser.uid&&confirm("تحظر الطالب ده؟"))fs.collection("banned").doc(id).set({t:Date.now()}).catch(()=>alert("مقدرتش أحظره"))}
+function unbanU(id){if(admin&&confirm("تفك الحظر؟"))fs.collection("banned").doc(id).delete().catch(()=>alert("مقدرتش أفك الحظر"))}
 function adminExtra(){
  subs.push(fs.collection("users").onSnapshot(s=>{USERS=s.docs.map(d=>({id:d.id,...d.data()})).filter(u=>u.email!==ADMIN_EMAIL);rMem()},()=>{}));
- subs.push(fs.collection("banned").onSnapshot(s=>{BANS=new Set(s.docs.map(d=>d.id));rMem()},()=>{}));
+ subs.push(fs.collection("banned").onSnapshot(s=>{BANS=new Set(s.docs.map(d=>d.id));rMem();rLogs()},()=>{}));
  subs.push(fs.collection("dm").orderBy("t","desc").limit(20).onSnapshot(s=>{DML=s.docs.map(d=>d.data()).filter(x=>x.from==="user");$("dml").innerHTML=DML.map((x,i)=>`<div class="a" onclick="openM('${esc(x.uid)}','${esc(x.name)}')" style="cursor:pointer"><b>${esc(x.name)}</b>: ${esc(x.text)}</div>`).join("")||'<p class="mu">مفيش رسائل جديدة</p>'},()=>{}))}
 function rMem(){const el=$("mem");if(!el)return;el.innerHTML=USERS.map((u,i)=>`<div class="a">${esc(u.name)} (${esc(u.cls)})${BANS.has(u.id)?' <span class="no">🚫 محظور</span>':''}<br><span class="mu">${esc(u.email)}</span><br><button class="b o" style="padding:3px 10px" onclick="openM(USERS[${i}].id,USERS[${i}].name)">✉️ رسالة</button> ${BANS.has(u.id)?`<button class="b" style="padding:3px 10px" onclick="unbanU(USERS[${i}].id)">فك الحظر</button>`:`<button class="b o" style="padding:3px 10px" onclick="banU(USERS[${i}].id)">🚫 حظر</button>`}</div>`).join("")||'<p class="mu">مفيش أعضاء لسه</p>'}
 function genCode(kr){const ch="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let k="";crypto.getRandomValues(new Uint8Array(8)).forEach(v=>k+=ch[v%ch.length]);fs.collection("codes").doc(k).set(kr?{t:Date.now(),k:1}:{t:Date.now()})}
