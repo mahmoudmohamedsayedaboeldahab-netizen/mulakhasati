@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>مُلخّصاتي – أولى ثانوي</title>
+<style>
+:root{--bg:#f4f5fb;--c:#fff;--tx:#1b2133;--mu:#69728a;--pr:#5b4bdb;--p2:#9b6bff;--bd:#e5e8f2}
+@media(prefers-color-scheme:dark){:root{--bg:#10121b;--c:#1b1f2e;--tx:#eef0f8;--mu:#9aa3bb;--bd:#2b3248}}
+*{box-sizing:border-box}body{margin:0;font-family:Tahoma,Arial,sans-serif;background:var(--bg);color:var(--tx);line-height:1.75;padding-bottom:90px}
+header{background:linear-gradient(135deg,var(--pr),var(--p2));color:#fff;padding:20px 16px 26px;border-radius:0 0 28px 28px;display:flex;justify-content:space-between;align-items:center}
+header h1{margin:0;font-size:21px}main{max-width:720px;margin:14px auto;padding:0 14px}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:10px}.c{background:var(--c);border:1px solid var(--bd);border-radius:18px;padding:16px;box-shadow:0 4px 14px #281e7810;margin-bottom:10px}
+.b{border:0;background:linear-gradient(135deg,var(--pr),var(--p2));color:#fff;border-radius:14px;padding:12px;font:inherit;cursor:pointer}.b.o{background:none;color:var(--pr);border:1px solid var(--pr)}.w{display:block;width:100%;margin-bottom:10px;padding:15px;font-size:17px}
+.t{text-align:center;font-weight:600;cursor:pointer}.t i{display:block;font-style:normal;font-size:30px}
+input,textarea,select{width:100%;font:inherit;padding:11px;border-radius:12px;border:1px solid var(--bd);background:var(--c);color:var(--tx);margin-bottom:8px}
+.a{background:#5b4bdb1a;border-radius:10px;padding:8px 10px;margin-top:6px}.m{padding:10px 12px;border-radius:16px;margin:6px 0;max-width:90%;white-space:pre-wrap}.me{background:var(--pr);color:#fff;margin-inline-start:auto}.bot{background:var(--bg);border:1px solid var(--bd)}
+.mu{color:var(--mu);font-size:13px}.h{display:none}.opt{display:block;padding:9px;margin:5px 0;border:1px solid var(--bd);border-radius:12px}.opt input{width:auto;margin-inline-end:8px}.ok{color:#16a34a}.no{color:#dc2626}
+#bar{position:fixed;bottom:0;left:0;right:0;background:var(--c);border-top:1px solid var(--bd);display:flex;justify-content:space-around;padding:8px 4px}#bar button{border:0;background:none;color:var(--mu);font:inherit;font-size:12px}#bar b{display:block;font-size:20px;font-weight:400}
+footer{text-align:center;color:var(--mu);font-size:13px;margin:20px 0}td{padding:5px;border-bottom:1px solid var(--bd);font-size:13px}img.p{max-width:100%;border-radius:10px;margin-top:8px}
+</style></head><body>
+<header><h1>📚 مُلخّصاتي | أولى ثانوي</h1><div><span id="who" class="mu" style="color:#fff"></span> <button class="b" style="padding:4px 10px;display:none" id="lo" onclick="auth.signOut()">خروج</button></div></header>
+<main>
+<div id="login" class="c h"><h3 id="lt">دخول</h3>
+ <div id="sf" class="h"><input id="nm" placeholder="اسمك بالكامل"><input id="cl" placeholder="الفصل (مثال: 1/3)"><input id="cd" placeholder="🔑 كود دخول المنصة"></div>
+ <input id="em" type="email" placeholder="الإيميل"><input id="pw" type="password" placeholder="الباسورد (6 حروف على الأقل)">
+ <button class="b w" onclick="go()" id="gb">دخول</button><div id="le" class="no"></div>
+ <p class="mu" onclick="tog()" style="cursor:pointer;text-decoration:underline" id="tg">معنديش حساب – سجّل</p></div>
+<div id="app" class="h">
+ <section id="home"><button class="b w" onclick="show('subj')">📝 التقييمات (1 → 10)</button><button class="b w" onclick="show('exam')">🎯 امتحان بالذكاء الاصطناعي</button><button class="b w o" onclick="show('chat')">🤖 المساعد الذكي</button></section>
+ <section id="subj" class="h"><h3>اختار المادة</h3><div class="g" id="subjs"></div></section>
+ <section id="asm" class="h"><h3 id="asmT"></h3><div class="g" id="asms"></div><button class="b o" onclick="show('subj')">رجوع</button></section>
+ <section id="view" class="h"><h3 id="viewT"></h3><div id="qs"></div><button class="b o" onclick="show('asm')">رجوع</button></section>
+ <section id="exam" class="h"><h3>🎯 امتحان ذكي</h3><div class="c"><select id="es"></select><input id="el" placeholder="اسم الدرس"><button class="b w" onclick="genExam()">ابدأ الامتحان</button></div><div id="eq"></div></section>
+ <section id="chat" class="h"><div class="c" id="msgs"><div class="m bot">أنا مدرسك الذكي 🎓 اسألني في أي مادة من أولى ثانوي.</div></div><div style="display:flex;gap:6px"><input id="ci" placeholder="اكتب سؤالك..." onkeydown="if(event.key==='Enter')ask()"><button class="b" onclick="ask()" style="margin-bottom:8px">إرسال</button></div></section>
+ <section id="admin" class="h"><h3>🔒 لوحة الأدمن</h3>
+  <div class="c"><b>🔑 مولّد أكواد الدخول</b><br><br><button class="b w" onclick="genCode()">توليد كود جديد</button><div id="codes"></div></div>
+  <div class="c"><b>➕ إضافة سؤال</b><br><br><select id="as"></select><select id="an"></select><textarea id="aq" rows="3" placeholder="السؤال"></textarea><textarea id="aa" rows="3" placeholder="الإجابة"></textarea>
+   <label class="mu">📎 صورة (اختياري)</label><input type="file" id="af" accept="image/*"><button class="b w" onclick="addItem()">حفظ</button><div id="st" class="mu"></div><div id="items"></div></div>
+  <div class="c"><b>🎯 النتائج والإجابات</b><div id="res"></div></div>
+  <div class="c"><b>👥 الدخول والبحث</b><table id="logs"></table></div></section>
+</div>
+<footer>© 2026 محمود محمد – جميع الحقوق محفوظة</footer></main>
+<div id="bar" class="h"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+// ====== عدّل الأربع حاجات دي بس (الشرح في README) ======
+const CONFIG={apiKey:"AIzaSyBrFeHJQ5UA-UITRQS_WalajC_NPtD7ciA",authDomain:"mulakhasati-f06ae.firebaseapp.com",projectId:"mulakhasati-f06ae",appId:"1:44112898940:web:80c242ae556a8be35392f9"};
+const ADMIN_EMAIL="mahmoud.mohamed.sayed.abo.eldahab@gmail.com";
+const AI_URL="";
+// =======================================================
+firebase.initializeApp(CONFIG);const auth=firebase.auth(),fs=firebase.firestore();
+const SUBJ=[["تاريخ","🏛️"],["عربي","📖"],["فلسفة ومنطق","🧠"],["إنجليزي","🔤"],["إيطالي","🇮🇹"],["رياضيات","➗"],["علوم متكاملة","🔬"]];
+const $=id=>document.getElementById(id),esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])),md=t=>esc(t).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");
+let me="",admin=false,busy=false,signup=false,ITEMS=[],EX=null,hist=[],subs=[];
+function tog(){signup=!signup;$("sf").classList.toggle("h",!signup);$("lt").textContent=$("gb").textContent=signup?"تسجيل حساب جديد":"دخول";$("tg").textContent=signup?"عندي حساب – دخول":"معنديش حساب – سجّل"}
+function show(id){["home","subj","asm","view","exam","chat","admin"].forEach(x=>$(x).classList.toggle("h",x!==id));scrollTo(0,0)}
+function log(ev,d){if(auth.currentUser)fs.collection("logs").add({t:Date.now(),uid:auth.currentUser.uid,name:me,ev,d:d||""}).catch(()=>{})}
+async function go(){const e=$("em").value.trim(),p=$("pw").value,er=$("le");er.textContent="";
+ try{if(!signup){await auth.signInWithEmailAndPassword(e,p);return}
+  const n=$("nm").value.trim(),c=$("cl").value.trim(),k=$("cd").value.trim().toUpperCase();
+  if(!n||!c||(!k&&e!==ADMIN_EMAIL)){er.textContent="كمّل كل البيانات";return}
+  busy=true;const u=(await auth.createUserWithEmailAndPassword(e,p)).user;
+  if(e!==ADMIN_EMAIL){const d=await fs.collection("codes").doc(k).get().catch(()=>null);if(!d||!d.exists){await u.delete();busy=false;er.textContent="الكود غلط";return}}
+  await fs.collection("users").doc(u.uid).set({name:n,cls:c,email:e,t:Date.now()});busy=false;boot(u)}
+ catch(x){busy=false;er.textContent=x.code==="auth/email-already-in-use"?"الإيميل ده مسجل قبل كده":x.code==="auth/weak-password"?"الباسورد ضعيف":"بيانات غلط أو حصلت مشكلة"}}
+auth.onAuthStateChanged(u=>{if(busy)return;if(!u){$("app").classList.add("h");$("bar").classList.add("h");$("lo").style.display="none";$("login").classList.remove("h");return}boot(u)});
+async function boot(u){const d=await fs.collection("users").doc(u.uid).get();if(!d.exists){await auth.signOut();return}
+ const p=d.data();admin=u.email===ADMIN_EMAIL;me=admin?"محمود محمد (أدمن)":p.name+" ("+p.cls+")";
+ $("login").classList.add("h");$("app").classList.remove("h");$("bar").classList.remove("h");$("lo").style.display="inline";$("who").textContent=me;
+ $("subjs").innerHTML=SUBJ.map(s=>`<div class="c t" onclick="pick('${s[0]}')"><i>${s[1]}</i>${s[0]}</div>`).join("");
+ $("es").innerHTML=$("as").innerHTML=SUBJ.map(s=>"<option>"+s[0]+"</option>").join("");$("an").innerHTML=[1,2,3,4,5,6,7,8,9,10].map(n=>"<option>"+n+"</option>").join("");
+ $("bar").innerHTML=`<button onclick="show('home')"><b>🏠</b>الرئيسية</button><button onclick="show('subj')"><b>📝</b>التقييمات</button><button onclick="show('exam')"><b>🎯</b>امتحان</button><button onclick="show('chat')"><b>🤖</b>المساعد</button>`+(admin?`<button onclick="goAdmin()"><b>🔒</b>الأدمن</button>`:"");
+ subs.forEach(f=>f());subs=[fs.collection("items").onSnapshot(s=>{ITEMS=s.docs.map(d=>({id:d.id,...d.data()}));rItems()})];show("home");log("دخول")}
+function pick(s){$("asmT").textContent=s;$("asms").innerHTML=[1,2,3,4,5,6,7,8,9,10].map(n=>`<div class="c t" onclick="op('${s}',${n})">التقييم ${n}</div>`).join("");log("اختار مادة",s);show("asm")}
+function op(s,n){$("viewT").textContent=s+" – التقييم "+n;const L=ITEMS.filter(x=>x.s===s&&x.n===n).sort((x,y)=>x.t-y.t);
+ $("qs").innerHTML=L.length?L.map((x,i)=>`<div class="c"><b>${i+1}. ${esc(x.q)}</b>${x.a?`<div class="a">✅ ${esc(x.a)}</div>`:""}${x.img?`<img class="p" src="${x.img}">`:""}</div>`).join(""):'<div class="c mu">لسه مفيش أسئلة</div>';log("فتح تقييم",s+"/"+n);show("view")}
+async function ai(prompt){const r=await fetch(AI_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt})});return(await r.json()).text}
+async function ask(){const q=$("ci").value.trim();if(!q)return;$("ci").value="";const m=$("msgs");m.insertAdjacentHTML("beforeend",`<div class="m me">${esc(q)}</div>`);const b=document.createElement("div");b.className="m bot";b.textContent="⏳ بفكر...";m.appendChild(b);log("سؤال",q);hist.push("الطالب: "+q);
+ const sys="أنت مدرس خبير ودود لطلاب الصف الأول الثانوي في مصر (نظام البكالوريا). المواد: تاريخ، عربي، فلسفة ومنطق، إنجليزي، إيطالي، رياضيات، علوم متكاملة.\nالقواعد: اتكلم بالعامية المصرية المبسطة. ابدأ بالإجابة المباشرة ثم اشرح. في الرياضيات والعلوم حل خطوة بخطوة واكتب القوانين وراجع الناتج. في اللغات اشرح القاعدة مع أمثلة وترجمة. في التاريخ والفلسفة نقاط مرتبة وجملة تلخيص. لو السؤال غامض اسأل سؤال توضيحي واحد. لو خارج منهج أولى ثانوي اعتذر بلطف. اقترح سؤال تدريبي في الآخر. استخدم **الخط الغامق** للمصطلحات. لا تخترع معلومات.\n\nالمحادثة:\n"+hist.slice(-14).join("\n")+"\nالمدرس:";
+ try{const t=await ai(sys);hist.push("المدرس: "+t);b.innerHTML=md(t)}catch(e){b.textContent="حصلت مشكلة، جرّب تاني"}}
+async function genExam(){const s=$("es").value,l=$("el").value.trim();if(!l)return;$("eq").innerHTML='<div class="c">⏳ بجهزلك الامتحان...</div>';log("طلب امتحان",s+"/"+l);
+ try{let t=await ai("أنت مُعدّ امتحانات خبير. اعمل امتحان من 8 أسئلة اختيار من متعدد (4 اختيارات) لطالب الصف الأول الثانوي (البكالوريا المصرية) في مادة "+s+"، درس: "+l+". نوّع المستوى، والأسئلة واضحة من المنهج. أعد JSON فقط بدون أي نص آخر: [{\"q\":\"\",\"o\":[\"\",\"\",\"\",\"\"],\"a\":0,\"e\":\"شرح مختصر\"}] حيث a رقم الإجابة الصحيحة 0-3.");
+  const r=JSON.parse(t.replace(/```json|```/g,"").trim());EX={s,l,qs:r};
+  $("eq").innerHTML=r.map((x,i)=>`<div class="c"><b>${i+1}. ${esc(x.q)}</b>${x.o.map((o,j)=>`<label class="opt"><input type="radio" name="q${i}" value="${j}">${esc(o)}</label>`).join("")}<div id="ex${i}"></div></div>`).join("")+'<button class="b w" id="sb" onclick="sub()">تسليم</button>'}catch(e){$("eq").innerHTML='<div class="c no">معرفتش أجهّز الامتحان، جرّب تاني</div>'}}
+async function sub(){if(!EX)return;let sc=0;const ans=EX.qs.map((x,i)=>{const c=document.querySelector(`input[name=q${i}]:checked`),p=c?+c.value:-1;if(p===x.a)sc++;$("ex"+i).innerHTML=`<div class="a ${p===x.a?"ok":"no"}">${p===x.a?"✅ صح":"❌ الصح: "+esc(x.o[x.a])}<br><span class="mu">${esc(x.e)}</span></div>`;return{q:x.q,p:p<0?"لم يجب":x.o[p],r:x.o[x.a]}});
+ $("sb").outerHTML=`<div class="c t">النتيجة: ${sc} / ${EX.qs.length}</div>`;fs.collection("results").add({t:Date.now(),uid:auth.currentUser.uid,name:me,s:EX.s,l:EX.l,sc,tot:EX.qs.length,ans}).catch(()=>{});EX=null}
+function goAdmin(){if(!admin)return;show("admin");if(subs.length>1)return;
+ subs.push(fs.collection("logs").orderBy("t","desc").limit(80).onSnapshot(s=>{$("logs").innerHTML=s.docs.map(d=>{const x=d.data();return`<tr><td>${new Date(x.t).toLocaleTimeString("ar-EG")}</td><td>${esc(x.name)}</td><td>${esc(x.ev)}</td><td>${esc(x.d)}</td></tr>`}).join("")}));
+ subs.push(fs.collection("results").orderBy("t","desc").limit(40).onSnapshot(s=>{$("res").innerHTML=s.docs.map(d=>{const x=d.data();return`<details class="a"><summary>${esc(x.name)} – ${esc(x.s)}/${esc(x.l)} – <b>${x.sc}/${x.tot}</b></summary>${(x.ans||[]).map((a,i)=>`<div class="mu">${i+1}. ${esc(a.q)}<br>اختار: ${esc(a.p)} | الصح: ${esc(a.r)}</div>`).join("")}</details>`}).join("")||'<p class="mu">لسه مفيش نتائج</p>'}));
+ subs.push(fs.collection("codes").onSnapshot(s=>{$("codes").innerHTML=s.docs.map(d=>`<div class="a"><b dir="ltr">${esc(d.id)}</b> <button class="b o" style="padding:2px 10px" onclick="fs.collection('codes').doc('${d.id}').delete()">حذف</button></div>`).join("")}))}
+function genCode(){const ch="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let k="";crypto.getRandomValues(new Uint8Array(8)).forEach(v=>k+=ch[v%ch.length]);fs.collection("codes").doc(k).set({t:Date.now()})}
+function comp(f){return new Promise(r=>{const i=new Image();i.onload=()=>{const k=Math.min(1,900/i.width),c=document.createElement("canvas");c.width=i.width*k;c.height=i.height*k;c.getContext("2d").drawImage(i,0,0,c.width,c.height);r(c.toDataURL("image/jpeg",.7))};i.src=URL.createObjectURL(f)})}
+async function addItem(){const q=$("aq").value.trim(),a=$("aa").value.trim(),f=$("af").files[0],st=$("st");if(!q&&!f)return;st.textContent="جاري الحفظ...";
+ try{await fs.collection("items").add({s:$("as").value,n:+$("an").value,q,a,img:f?await comp(f):"",t:Date.now()});$("aq").value=$("aa").value=$("af").value="";st.textContent="✅ اتحفظ"}catch(e){st.textContent="مقدرتش أحفظ"}}
+function rItems(){$("items").innerHTML=ITEMS.sort((x,y)=>x.t-y.t).map(x=>`<div class="a"><span class="mu">${esc(x.s)} – ${x.n}</span><br>${esc(x.q)}<br><button class="b o" style="padding:3px 10px" onclick="fs.collection('items').doc('${x.id}').delete()">حذف</button></div>`).join("")}
+</script></body></html>
