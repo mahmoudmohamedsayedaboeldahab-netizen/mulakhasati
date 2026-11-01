@@ -42,10 +42,11 @@ footer{text-align:center;color:var(--mu);font-size:13px;margin:20px 0}td{padding
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
-// ====== عدّل الأربع حاجات دي بس (الشرح في README) ======
+// ====== إعدادات المنصة ومفتاح الذكاء الاصطناعي ======
 const CONFIG={apiKey:"AIzaSyBrFeHJQ5UA-UITRQS_WalajC_NPtD7ciA",authDomain:"mulakhasati-f06ae.firebaseapp.com",projectId:"mulakhasati-f06ae",appId:"1:44112898940:web:80c242ae556a8be35392f9"};
 const ADMIN_EMAIL="mahmoud.mohamed.sayed.abo.eldahab@gmail.com";
-const AI_URL="";
+const GROQ_API_KEY = "Gsk_jESg3tAcTx39iq7Hpg91WGdyb3FYPVzwVPsosSMTfYP3Nsr5fGSe";
+const AI_URL = "https://api.groq.com/openai/v1/chat/completions";
 // =======================================================
 firebase.initializeApp(CONFIG);const auth=firebase.auth(),fs=firebase.firestore();
 const SUBJ=[["تاريخ","🏛️"],["عربي","📖"],["فلسفة ومنطق","🧠"],["إنجليزي","🔤"],["إيطالي","🇮🇹"],["رياضيات","➗"],["علوم متكاملة","🔬"]];
@@ -73,14 +74,34 @@ async function boot(u){const d=await fs.collection("users").doc(u.uid).get();if(
 function pick(s){$("asmT").textContent=s;$("asms").innerHTML=[1,2,3,4,5,6,7,8,9,10].map(n=>`<div class="c t" onclick="op('${s}',${n})">التقييم ${n}</div>`).join("");log("اختار مادة",s);show("asm")}
 function op(s,n){$("viewT").textContent=s+" – التقييم "+n;const L=ITEMS.filter(x=>x.s===s&&x.n===n).sort((x,y)=>x.t-y.t);
  $("qs").innerHTML=L.length?L.map((x,i)=>`<div class="c"><b>${i+1}. ${esc(x.q)}</b>${x.a?`<div class="a">✅ ${esc(x.a)}</div>`:""}${x.img?`<img class="p" src="${x.img}">`:""}</div>`).join(""):'<div class="c mu">لسه مفيش أسئلة</div>';log("فتح تقييم",s+"/"+n);show("view")}
-async function ai(prompt){const r=await fetch(AI_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt})});return(await r.json()).text}
+
+async function ai(prompt){
+  const r = await fetch(AI_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${GROQ_API_KEY}`
+    },
+    body: JSON.stringify({
+      model: "llama-3.3-70b-versatile",
+      messages: [{ role: "user", content: prompt }]
+    })
+  });
+  const data = await r.json();
+  if (data.choices && data.choices.length > 0) {
+    return data.choices[0].message.content;
+  } else {
+    throw new Error(data.error?.message || "حدث خطأ في الاتصال بالذكاء الاصطناعي");
+  }
+}
+
 async function ask(){const q=$("ci").value.trim();if(!q)return;$("ci").value="";const m=$("msgs");m.insertAdjacentHTML("beforeend",`<div class="m me">${esc(q)}</div>`);const b=document.createElement("div");b.className="m bot";b.textContent="⏳ بفكر...";m.appendChild(b);log("سؤال",q);hist.push("الطالب: "+q);
  const sys="أنت مدرس خبير ودود لطلاب الصف الأول الثانوي في مصر (نظام البكالوريا). المواد: تاريخ، عربي، فلسفة ومنطق، إنجليزي، إيطالي، رياضيات، علوم متكاملة.\nالقواعد: اتكلم بالعامية المصرية المبسطة. ابدأ بالإجابة المباشرة ثم اشرح. في الرياضيات والعلوم حل خطوة بخطوة واكتب القوانين وراجع الناتج. في اللغات اشرح القاعدة مع أمثلة وترجمة. في التاريخ والفلسفة نقاط مرتبة وجملة تلخيص. لو السؤال غامض اسأل سؤال توضيحي واحد. لو خارج منهج أولى ثانوي اعتذر بلطف. اقترح سؤال تدريبي في الآخر. استخدم **الخط الغامق** للمصطلحات. لا تخترع معلومات.\n\nالمحادثة:\n"+hist.slice(-14).join("\n")+"\nالمدرس:";
  try{const t=await ai(sys);hist.push("المدرس: "+t);b.innerHTML=md(t)}catch(e){b.textContent="حصلت مشكلة، جرّب تاني"}}
 async function genExam(){const s=$("es").value,l=$("el").value.trim();if(!l)return;$("eq").innerHTML='<div class="c">⏳ بجهزلك الامتحان...</div>';log("طلب امتحان",s+"/"+l);
  try{let t=await ai("أنت مُعدّ امتحانات خبير. اعمل امتحان من 8 أسئلة اختيار من متعدد (4 اختيارات) لطالب الصف الأول الثانوي (البكالوريا المصرية) في مادة "+s+"، درس: "+l+". نوّع المستوى، والأسئلة واضحة من المنهج. أعد JSON فقط بدون أي نص آخر: [{\"q\":\"\",\"o\":[\"\",\"\",\"\",\"\"],\"a\":0,\"e\":\"شرح مختصر\"}] حيث a رقم الإجابة الصحيحة 0-3.");
   const r=JSON.parse(t.replace(/```json|```/g,"").trim());EX={s,l,qs:r};
-  $("eq").innerHTML=r.map((x,i)=>`<div class="c"><b>${i+1}. ${esc(x.q)}</b>${x.o.map((o,j)=>`<label class="opt"><input type="radio" name="q${i}" value="${j}">${esc(o)}</label>`).join("")}<div id="ex${i}"></div></div>`).join("")+'<button class="b w" id="sb" onclick="sub()">تسليم</button>'}catch(e){$("eq").innerHTML='<div class="c no">معرفتش أجهّز الامتحان، جرّب تاني</div>'}}
+  $("eq").innerHTML=r.map((x,i)=>`<div class="c"><b>${i+1}. ${esc(x.q)}</b>${x.o.map((o,j)=>`<label class="opt"><input type="radio" name="q${i}" value="${j}">${esc(o)}</label>`).join("")}<div id="ex${i}"></div></div>`).join("")+'<button class="b w" id="sb" onclick="sub()">تسليم</button>'}catch(e){$("eq").innerHTML='<div class="c no">معرفتش أجهّز الامتحان، جرّب تاني'}}
 async function sub(){if(!EX)return;let sc=0;const ans=EX.qs.map((x,i)=>{const c=document.querySelector(`input[name=q${i}]:checked`),p=c?+c.value:-1;if(p===x.a)sc++;$("ex"+i).innerHTML=`<div class="a ${p===x.a?"ok":"no"}">${p===x.a?"✅ صح":"❌ الصح: "+esc(x.o[x.a])}<br><span class="mu">${esc(x.e)}</span></div>`;return{q:x.q,p:p<0?"لم يجب":x.o[p],r:x.o[x.a]}});
  $("sb").outerHTML=`<div class="c t">النتيجة: ${sc} / ${EX.qs.length}</div>`;fs.collection("results").add({t:Date.now(),uid:auth.currentUser.uid,name:me,s:EX.s,l:EX.l,sc,tot:EX.qs.length,ans}).catch(()=>{});EX=null}
 function goAdmin(){if(!admin)return;show("admin");if(subs.length>1)return;
