@@ -13,7 +13,7 @@ input,textarea,select{width:100%;font:inherit;padding:11px;border-radius:12px;bo
 .a{background:#5b4bdb1a;border-radius:10px;padding:8px 10px;margin-top:6px}.m{padding:10px 12px;border-radius:16px;margin:6px 0;max-width:90%;white-space:pre-wrap}.me{background:var(--pr);color:#fff;margin-inline-start:auto}.bot{background:var(--bg);border:1px solid var(--bd)}
 .mu{color:var(--mu);font-size:13px}.h{display:none}.opt{display:block;padding:9px;margin:5px 0;border:1px solid var(--bd);border-radius:12px}.opt input{width:auto;margin-inline-end:8px}.ok{color:#16a34a}.no{color:#dc2626}
 #bar{position:fixed;bottom:0;left:0;right:0;background:var(--c);border-top:1px solid var(--bd);display:flex;justify-content:space-around;padding:8px 4px}#bar button{border:0;background:none;color:var(--mu);font:inherit;font-size:12px}#bar b{display:block;font-size:20px;font-weight:400}
-footer{text-align:center;color:var(--mu);font-size:13px;margin:20px 0}th{padding:5px;font-size:12px;text-align:start;color:var(--mu)}td{padding:5px;border-bottom:1px solid var(--bd);font-size:13px}img.p{max-width:100%;border-radius:10px;margin-top:8px}
+footer{text-align:center;color:var(--mu);font-size:13px;margin:20px 0}th{padding:5px;font-size:12px;text-align:start;color:var(--mu)}td{padding:5px;border-bottom:1px solid var(--bd);font-size:13px}img.p{width:100%;height:auto;border-radius:10px;margin-top:8px}
 </style></head><body>
 <header><h1>📚 مُلخّصاتي | أولى ثانوي</h1><div><span id="who" class="mu" style="color:#fff"></span> <button class="b" style="padding:4px 10px;display:none" id="lo" onclick="auth.signOut()">خروج</button></div></header>
 <main>
@@ -37,7 +37,8 @@ footer{text-align:center;color:var(--mu);font-size:13px;margin:20px 0}th{padding
  <section id="chat" class="h"><div class="c" id="msgs"><div class="m bot">أنا مدرسك الذكي 🎓 اسألني في أي مادة من أولى ثانوي.</div></div><div style="display:flex;gap:6px"><input id="ci" placeholder="اكتب سؤالك..." onkeydown="if(event.key==='Enter')ask()"><button class="b" onclick="ask()" style="margin-bottom:8px">إرسال</button></div></section>
  <section id="admin" class="h"><h3>🔒 لوحة الأدمن</h3>
   <div class="c"><b>🔑 مولّد أكواد الدخول</b><br><br><button class="b w" onclick="genCode()">توليد كود تسجيل (للطلاب الجدد)</button><button class="b w o" onclick="genCode(1)">🔒 توليد كود خانة كيريو</button><div id="codes"></div></div>
-  <div class="c"><b>➕ إضافة سؤال</b><br><br><select id="as"></select><select id="an"></select><textarea id="aq" rows="3" placeholder="السؤال"></textarea><textarea id="aa" rows="3" placeholder="الإجابة"></textarea>
+  <div class="c"><b>📤 رفع جماعي للصور</b><p class="mu">اختار المادة والتقييم وحدد كل الصور (سؤال + إجابة) مرة واحدة. بتتحفظ بترتيب اسم الملف وبتظهر للطالب صورة تحت صورة.</p><select id="bs"></select><select id="bn"></select><input type="file" id="bf" accept="image/*" multiple><button class="b w" onclick="bulkUp()">رفع الكل</button><div id="bst" class="mu"></div></div>
+  <div class="c"><b>➕ إضافة سؤال</b><br><br><select id="as" onchange="rItems()"></select><select id="an" onchange="rItems()"></select><textarea id="aq" rows="3" placeholder="السؤال"></textarea><textarea id="aa" rows="3" placeholder="الإجابة"></textarea>
    <label class="mu">📎 صورة (اختياري)</label><input type="file" id="af" accept="image/*"><button class="b w" onclick="addItem()">حفظ</button><div id="st" class="mu"></div><div id="items"></div></div>
   <div class="c"><b>📩 آخر رسائل الأعضاء</b><div id="dml"></div></div>
   <div class="c"><b>👥 الأعضاء</b><div id="mem"></div></div>
@@ -76,9 +77,9 @@ async function boot(u){const d=await fs.collection("users").doc(u.uid).get();if(
  const p=d.data();admin=u.email===ADMIN_EMAIL;if(!admin){const bn=await fs.collection("banned").doc(u.uid).get().catch(()=>null);if(bn&&bn.exists){await auth.signOut();$("le").textContent="الحساب ده محظور من الموقع";return}}me=admin?"محمود محمد (أدمن)":p.name+" ("+p.cls+")";
  $("login").classList.add("h");$("app").classList.remove("h");$("bar").classList.remove("h");$("lo").style.display="inline";$("who").textContent=me;chkV(u);
  $("subjs").innerHTML=SUBJ.map(s=>`<div class="c t" onclick="pick('${s[0]}')"><i>${s[1]}</i>${s[0]}</div>`).join("");
- $("es").innerHTML=$("as").innerHTML=SUBJ.map(s=>"<option>"+s[0]+"</option>").join("");$("es").insertAdjacentHTML("afterbegin","<option>تلقائي (حسب الدرس)</option>");if(admin)$("hm").style.display="none";$("an").innerHTML=[1,2,3,4,5,6,7,8,9,10].map(n=>"<option>"+n+"</option>").join("");
+ $("es").innerHTML=$("as").innerHTML=$("bs").innerHTML=SUBJ.map(s=>"<option>"+s[0]+"</option>").join("");$("es").insertAdjacentHTML("afterbegin","<option>تلقائي (حسب الدرس)</option>");if(admin)$("hm").style.display="none";$("bn").innerHTML=$("an").innerHTML=[1,2,3,4,5,6,7,8,9,10].map(n=>"<option>"+n+"</option>").join("");
  $("bar").innerHTML=`<button onclick="show('home')"><b>🏠</b>الرئيسية</button><button onclick="show('subj')"><b>📝</b>التقييمات</button><button onclick="show('exam')"><b>🎯</b>امتحان</button><button onclick="show('chat')"><b>🤖</b>المساعد</button>`+(admin?`<button onclick="goAdmin()"><b>🔒</b>الأدمن</button>`:"");
- subs.forEach(f=>f());subs=[fs.collection("items").onSnapshot(s=>{ITEMS=s.docs.map(d=>({id:d.id,...d.data()}));rItems()})];show("home");log("دخول")}
+ subs.forEach(f=>f());subs=[];window.adm0=false;show("home");log("دخول")}
 let LOGS=[];
 function rLogs(){const el=$("logs");if(!el)return;const f=($("lf")?$("lf").value:"").trim().toLowerCase();
  const L=LOGS.filter(x=>!f||(x.name+" "+x.ev+" "+x.d).toLowerCase().indexOf(f)>=0);
@@ -87,8 +88,9 @@ function chkV(u){const v=$("vb");if(admin&&!u.emailVerified){v.classList.remove(
 async function sendV(){try{await auth.currentUser.sendEmailVerification();$("vs").textContent="اتبعتت الرسالة لإيميلك (شوف Spam كمان)"}catch(e){$("vs").textContent="حصل خطأ، جرّب بعد شوية"}}
 async function refV(){try{await auth.currentUser.reload();await auth.currentUser.getIdToken(true);if(auth.currentUser.emailVerified)location.reload();else $("vs").textContent="لسه مش متأكَّد، افتح الرابط اللي في الإيميل الأول"}catch(e){$("vs").textContent="حصل خطأ"}}
 function pick(s){$("asmT").textContent=s;$("asms").innerHTML=[1,2,3,4,5,6,7,8,9,10].map(n=>`<div class="c t" onclick="op('${s}',${n})">التقييم ${n}</div>`).join("");log("اختار مادة",s);show("asm")}
-function op(s,n){$("viewT").textContent=s+" – التقييم "+n;const L=ITEMS.filter(x=>x.s===s&&x.n===n).sort((x,y)=>x.t-y.t);
- $("qs").innerHTML=L.length?L.map((x,i)=>`<div class="c"><b>${i+1}. ${esc(x.q)}</b>${x.a?`<div class="a">✅ ${esc(x.a)}</div>`:""}${x.img?`<img class="p" src="${x.img}">`:""}</div>`).join(""):'<div class="c mu">لسه مفيش أسئلة</div>';log("فتح تقييم",s+"/"+n);show("view")}
+async function op(s,n){$("viewT").textContent=s+" – التقييم "+n;$("qs").innerHTML='<div class="c mu">⏳ جاري التحميل...</div>';show("view");log("فتح تقييم",s+"/"+n);let L;
+ try{const r=await fs.collection("items").where("s","==",s).where("n","==",n).get();L=r.docs.map(d=>({id:d.id,...d.data()})).sort((x,y)=>x.t-y.t)}catch(e){$("qs").innerHTML='<div class="c no">مقدرتش أحمّل الأسئلة، جرّب تاني</div>';return}
+ $("qs").innerHTML=L.length?L.map((x,i)=>`<div class="c">${x.q?`<b>${i+1}. ${esc(x.q)}</b>`:""}${x.a?`<div class="a">✅ ${esc(x.a)}</div>`:""}${x.img?`<img class="p" loading="lazy" src="${x.img}">`:""}</div>`).join(""):'<div class="c mu">لسه مفيش أسئلة</div>'}
 let aiQ=Promise.resolve();
 function ai(msgs){const sleep=ms=>new Promise(r=>setTimeout(r,ms));const clean=t=>t.replace(/\n+[-*_ ]*\**\s*(Support|Powered by)[\s\S]*pollinations[\s\S]*$/i,"").trim();
  const run=async()=>{let last;for(let i=0;i<4;i++){try{
@@ -109,13 +111,13 @@ async function genExam(){let s=$("es").value;const l=$("el").value.trim();if(!l)
   $("eq").innerHTML=r.map((x,i)=>`<div class="c"><b>${i+1}. ${esc(x.q)}</b>${x.o.map((o,j)=>`<label class="opt"><input type="radio" name="q${i}" value="${j}">${esc(o)}</label>`).join("")}<div id="ex${i}"></div></div>`).join("")+'<button class="b w" id="sb" onclick="sub()">تسليم</button>'}catch(e){$("eq").innerHTML='<div class="c no">الخدمة مشغولة دلوقتي، جرّب بعد دقيقة</div>'}}
 async function sub(){if(!EX)return;let sc=0;const ans=EX.qs.map((x,i)=>{const c=document.querySelector(`input[name=q${i}]:checked`),p=c?+c.value:-1;if(p===x.a)sc++;$("ex"+i).innerHTML=`<div class="a ${p===x.a?"ok":"no"}">${p===x.a?"✅ صح":"❌ الصح: "+esc(x.o[x.a])}<br><span class="mu">${esc(x.e)}</span></div>`;return{q:x.q,p:p<0?"لم يجب":x.o[p],r:x.o[x.a]}});
  $("sb").outerHTML=`<div class="c t">النتيجة: ${sc} / ${EX.qs.length}</div>`;fs.collection("results").add({t:Date.now(),uid:auth.currentUser.uid,name:me,s:EX.s,l:EX.l,sc,tot:EX.qs.length,ans}).catch(()=>{});EX=null}
-function goAdmin(){if(!admin)return;show("admin");if(subs.length>1)return;adminExtra();
+function goAdmin(){if(!admin)return;show("admin");if(window.adm0)return;window.adm0=true;adminExtra();rItems();
  subs.push(fs.collection("logs").orderBy("t","desc").limit(150).onSnapshot(s=>{LOGS=s.docs.map(d=>d.data());rLogs()},()=>{$("logs").innerHTML='<tr><td class="no">مقدرتش أحمّل السجلات (اتأكد إن إيميل الأدمن متأكَّد منه)</td></tr>'}));
  subs.push(fs.collection("results").orderBy("t","desc").limit(40).onSnapshot(s=>{$("res").innerHTML=s.docs.map(d=>{const x=d.data();return`<details class="a"><summary>${esc(x.name)} – ${esc(x.s)}/${esc(x.l)} – <b>${x.sc}/${x.tot}</b></summary>${(x.ans||[]).map((a,i)=>`<div class="mu">${i+1}. ${esc(a.q)}<br>اختار: ${esc(a.p)} | الصح: ${esc(a.r)}</div>`).join("")}</details>`}).join("")||'<p class="mu">لسه مفيش نتائج</p>'}));
  subs.push(fs.collection("codes").onSnapshot(s=>{$("codes").innerHTML=s.docs.map(d=>`<div class="a"><b dir="ltr">${esc(d.id)}</b> <span class="mu">${d.data().k?"🔒 كيريو":"تسجيل"}</span> <button class="b o" style="padding:2px 10px" onclick="fs.collection('codes').doc('${d.id}').delete()">حذف</button></div>`).join("")}))}
 async function kOK(c){try{const d=await fs.collection("codes").doc(c).get();return d.exists&&d.data().k===1}catch(e){return false}}
 async function openK(){show("kiryo");let ok=admin;if(!ok){const c=localStorage.getItem("kcode");ok=c?await kOK(c):false}kShow(ok)}
-function kShow(ok){$("klock").classList.toggle("h",ok);$("kbox").classList.toggle("h",!ok);if(!ok)return;const d=ITEMS.find(x=>x.id==="kiryo_link");
+async function kShow(ok){$("klock").classList.toggle("h",ok);$("kbox").classList.toggle("h",!ok);if(!ok)return;let d=null;try{const r=await fs.collection("items").doc("kiryo_link").get();if(r.exists)d=r.data()}catch(e){}
  $("kbox").innerHTML=d&&/^https?:\/\//.test(d.url||"")?`<div class="c t"><p>${esc(d.title||"منصة كيريو")}</p><a class="b w" style="text-decoration:none" href="${esc(d.url)}" target="_blank" rel="noopener">فتح الرابط 🔗</a>${d.note?`<p class="mu">${esc(d.note)}</p>`:""}</div>`:'<div class="c mu">لسه المدرس مضافش الرابط</div>'}
 async function kUnlock(){const c=$("kc").value.trim().toUpperCase();if(await kOK(c)){localStorage.setItem("kcode",c);log("فتح خانة كيريو");kShow(true)}else $("ke").textContent="الكود غلط أو منتهي"}
 async function saveK(){if(!admin)return;const u=$("ku").value.trim();if(!/^https?:\/\//.test(u)){$("ks").textContent="اكتب رابط يبدأ بـ https://";return}
@@ -144,6 +146,14 @@ function rMem(){const el=$("mem");if(!el)return;el.innerHTML=USERS.map((u,i)=>`<
 function genCode(kr){const ch="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let k="";crypto.getRandomValues(new Uint8Array(8)).forEach(v=>k+=ch[v%ch.length]);fs.collection("codes").doc(k).set(kr?{t:Date.now(),k:1}:{t:Date.now()})}
 function comp(f){return new Promise(r=>{const i=new Image();i.onload=()=>{const k=Math.min(1,900/i.width),c=document.createElement("canvas");c.width=i.width*k;c.height=i.height*k;c.getContext("2d").drawImage(i,0,0,c.width,c.height);r(c.toDataURL("image/jpeg",.7))};i.src=URL.createObjectURL(f)})}
 async function addItem(){const q=$("aq").value.trim(),a=$("aa").value.trim(),f=$("af").files[0],st=$("st");if(!q&&!f)return;st.textContent="جاري الحفظ...";
- try{await fs.collection("items").add({s:$("as").value,n:+$("an").value,q,a,img:f?await comp(f):"",t:Date.now()});$("aq").value=$("aa").value=$("af").value="";st.textContent="✅ اتحفظ"}catch(e){st.textContent="مقدرتش أحفظ"}}
-function rItems(){$("items").innerHTML=ITEMS.filter(x=>x.s!=="__kiryo").sort((x,y)=>x.t-y.t).map(x=>`<div class="a"><span class="mu">${esc(x.s)} – ${x.n}</span><br>${esc(x.q)}<br><button class="b o" style="padding:3px 10px" onclick="fs.collection('items').doc('${x.id}').delete()">حذف</button></div>`).join("")}
+ try{await fs.collection("items").add({s:$("as").value,n:+$("an").value,q,a,img:f?await comp(f):"",t:Date.now()});$("aq").value=$("aa").value=$("af").value="";st.textContent="✅ اتحفظ";rItems()}catch(e){st.textContent="مقدرتش أحفظ"}}
+async function rItems(){const el=$("items");if(!el)return;el.innerHTML='<p class="mu">⏳</p>';
+ try{const r=await fs.collection("items").where("s","==",$("as").value).where("n","==",+$("an").value).get();const L=r.docs.map(d=>({id:d.id,...d.data()})).sort((x,y)=>x.t-y.t);
+  el.innerHTML=`<p class="mu">${L.length} عنصر في ${esc($("as").value)} – التقييم ${esc($("an").value)}</p>`+L.map(x=>`<div class="a">${x.img?`<img class="p" src="${x.img}" style="max-height:120px;width:auto"><br>`:""}${esc(x.q||"")}<br><button class="b o" style="padding:3px 10px" onclick="delItem('${x.id}')">حذف</button></div>`).join("")}catch(e){el.innerHTML='<p class="no">مقدرتش أحمّل</p>'}}
+async function delItem(id){if(admin&&confirm("تحذف العنصر ده؟")){await fs.collection("items").doc(id).delete().catch(()=>{});rItems()}}
+function compB(f){return new Promise((res,rej)=>{const i=new Image();i.onload=()=>{let w=Math.min(1400,i.width);for(let t=0;t<4;t++){const c=document.createElement("canvas");c.width=w;c.height=Math.round(i.height*w/i.width);const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(i,0,0,c.width,c.height);const u=c.toDataURL("image/jpeg",.8-t*.1);if(u.length<850000||t==3)return res(u);w=Math.round(w*.8)}};i.onerror=rej;i.src=URL.createObjectURL(f)})}
+async function bulkUp(){if(!admin)return;const fl=[...$("bf").files].sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true})),st=$("bst");if(!fl.length){st.textContent="اختار صور الأول";return}
+ const s=$("bs").value,n=+$("bn").value,base=Date.now();let ok=0;
+ for(let i=0;i<fl.length;i++){st.textContent="جاري الرفع "+(i+1)+" / "+fl.length+"...";try{const img=await compB(fl[i]);if(img.length>950000)throw 0;await fs.collection("items").add({s,n,q:"",a:"",img,t:base+i});ok++}catch(e){}}
+ st.textContent="✅ اترفع "+ok+" من "+fl.length+(ok<fl.length?" (فيه صور فشلت)":"");$("bf").value="";if($("as").value===s&&+$("an").value===n)rItems()}
 </script></body></html>
