@@ -55,7 +55,7 @@ footer{text-align:center;color:var(--mu);font-size:13px;margin:20px 0}th{padding
 // ====== عدّل الأربع حاجات دي بس (الشرح في README) ======
 const CONFIG={apiKey:"AIzaSyBrFeHJQ5UA-UITRQS_WalajC_NPtD7ciA",authDomain:"mulakhasati-f06ae.firebaseapp.com",projectId:"mulakhasati-f06ae",appId:"1:44112898940:web:80c242ae556a8be35392f9"};
 const ADMIN_EMAIL="mahmoud.mohamed.sayed.abo.eldahab@gmail.com";
-const AI_KEY="";const AI_URL="https://mulakhasati-ai.mahmoud-mohamed-sayed-abo-eldahab.workers.dev";const MODELS=["gemini-3.8-flash","gemini-3.6-flash","gemini-3.5-flash-lite"];
+const AI_KEY="";const AI_URL="https://mulakhasati-ai.mahmoud-mohamed-sayed-abo-eldahab.workers.dev";const MODELS=["gemini-3.5-flash-lite","gemini-3.6-flash","gemini-3.5-flash-lite","gemini-3.8-flash"];
 // =======================================================
 firebase.initializeApp(CONFIG);const auth=firebase.auth(),fs=firebase.firestore();
 const SUBJ=[["تاريخ","🏛️"],["عربي","📖"],["فلسفة ومنطق","🧠"],["إنجليزي","🔤"],["إيطالي","🇮🇹"],["رياضيات","➗"],["علوم متكاملة","🔬"]];
@@ -93,12 +93,12 @@ async function op(s,n){$("viewT").textContent=s+" – التقييم "+n;$("qs")
  $("qs").innerHTML=L.length?L.map((x,i)=>`<div class="c">${x.q?`<b>${i+1}. ${esc(x.q)}</b>`:""}${x.a?`<div class="a">✅ ${esc(x.a)}</div>`:""}${x.img?`<img class="p" loading="lazy" src="${x.img}">`:""}</div>`).join(""):'<div class="c mu">لسه مفيش أسئلة</div>'}
 let aiQ=Promise.resolve();
 function ai(msgs){const sleep=ms=>new Promise(r=>setTimeout(r,ms));const clean=t=>t.replace(/\n+[-*_ ]*\**\s*(Support|Powered by)[\s\S]*pollinations[\s\S]*$/i,"").trim();
- const run=async()=>{let last;for(let i=0;i<4;i++){try{
+ const run=async()=>{let last;for(let i=0;i<6;i++){try{
   if(AI_KEY.startsWith("sk-or")){const r=await fetch("https://openrouter.ai/api/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+AI_KEY},body:JSON.stringify({model:"openrouter/free",messages:msgs})});const d=await r.json();const t=d.choices&&d.choices[0].message.content;if(t)return t;last=d}
-  else if(AI_URL){const r=await fetch(AI_URL+"?m="+MODELS[i%MODELS.length],{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{parts:[{text:msgs.map(m=>m.content).join("\n\n")}]}]})});const d=await r.json();const t=d.candidates&&d.candidates[0].content.parts.map(x=>x.text||"").join("");if(t)return t;last=d}
+  else if(AI_URL){const ac=new AbortController();const tm=setTimeout(()=>ac.abort(),45000);let r;try{r=await fetch(AI_URL+"?m="+MODELS[i%MODELS.length],{method:"POST",signal:ac.signal,headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{parts:[{text:msgs.map(m=>m.content).join("\n\n")}]}]})})}finally{clearTimeout(tm)}const d=await r.json();const t=d.candidates&&d.candidates[0].content.parts.map(x=>x.text||"").join("");if(t)return t;last=d}
   else{const r=await fetch("https://text.pollinations.ai/openai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:["openai","openai-large","mistral"][i%3],messages:msgs})});if(r.ok){const d=await r.json();const t=d.choices&&d.choices[0].message.content;if(t)return clean(t)}last=r.status}
- }catch(e){last=e}await sleep(1000*(i+1))}throw last};
- return aiQ=aiQ.catch(()=>{}).then(run)}
+ }catch(e){last=e}console.log("ai retry",i,last);await sleep(500*(i+1))}throw last};
+ if(AI_URL)return run();return aiQ=aiQ.catch(()=>{}).then(run)}
 function pq(t){const a=t.indexOf("["),b=t.lastIndexOf("]");if(a<0||b<a)throw 0;const r=JSON.parse(t.slice(a,b+1).replace(/,\s*]/g,"]"));return r.filter(x=>x&&x.q&&Array.isArray(x.o)&&x.o.length>=2&&Number.isInteger(+x.a)&&+x.a<x.o.length).map(x=>({q:x.q,o:x.o,a:+x.a,e:x.e||""}))}
 async function aiJ(msgs){for(let i=0;i<3;i++){try{const r=pq(await ai(msgs));if(r.length)return r}catch(e){}}throw 0}
 const SYS="أنت مدرس مصري خبير ودود للصف الأول الثانوي (نظام البكالوريا المصرية) في المواد: اللغة العربية (نحو، صرف، بلاغة، أدب، نصوص)، التاريخ، الفلسفة والمنطق، الإنجليزي، الإيطالي، الرياضيات، العلوم المتكاملة (فيزياء/كيمياء/أحياء/جيولوجيا).\nقبل أي إجابة حدّد بدقة المادة والدرس الذي يتبعه السؤال، ولا تخلط بين المواد أبداً. مثال: «كان وأخواتها» و«كاد وأخواتها» (أفعال المقاربة والرجاء والشروع) و«إن وأخواتها» كلها من النحو في اللغة العربية وليست من الرياضيات.\nالقواعد: اتكلم بالعامية المصرية المبسطة مع الحفاظ على المصطلحات الصحيحة. ابدأ بالإجابة المباشرة ثم اشرح السبب. في الرياضيات والعلوم: حل خطوة بخطوة واكتب القوانين وراجع الناتج. في النحو: اذكر القاعدة والإعراب مع 3 أمثلة. في اللغات: القاعدة مع أمثلة وترجمة. في التاريخ والفلسفة: نقاط مرتبة وجملة تلخيص. لو السؤال غامض اسأل سؤال توضيحي واحد. لو خارج منهج أولى ثانوي اعتذر بلطف. اقترح سؤال تدريبي في الآخر. استخدم **الخط الغامق** للمصطلحات. لا تخترع معلومات، ولو مش متأكد قل ذلك.";
