@@ -55,7 +55,7 @@ footer{text-align:center;color:var(--mu);font-size:13px;margin:20px 0}th{padding
 // ====== عدّل الأربع حاجات دي بس (الشرح في README) ======
 const CONFIG={apiKey:"AIzaSyBrFeHJQ5UA-UITRQS_WalajC_NPtD7ciA",authDomain:"mulakhasati-f06ae.firebaseapp.com",projectId:"mulakhasati-f06ae",appId:"1:44112898940:web:80c242ae556a8be35392f9"};
 const ADMIN_EMAIL="mahmoud.mohamed.sayed.abo.eldahab@gmail.com";
-const AI_KEY="";const MODELS=["gemini-3.8-flash","gemini-3.6-flash","gemini-2.5-flash"];
+const AI_KEY="";const MODELS=["gemini-2.5-flash","gemini-2.5-flash-lite","gemini-2.0-flash"];
 // =======================================================
 firebase.initializeApp(CONFIG);const auth=firebase.auth(),fs=firebase.firestore();
 const SUBJ=[["تاريخ","🏛️"],["عربي","📖"],["فلسفة ومنطق","🧠"],["إنجليزي","🔤"],["إيطالي","🇮🇹"],["رياضيات","➗"],["علوم متكاملة","🔬"]];
@@ -97,7 +97,7 @@ function ai(msgs){const sleep=ms=>new Promise(r=>setTimeout(r,ms));const clean=t
   if(AI_KEY.startsWith("sk-or")){const r=await fetch("https://openrouter.ai/api/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+AI_KEY},body:JSON.stringify({model:"openrouter/free",messages:msgs})});const d=await r.json();const t=d.choices&&d.choices[0].message.content;if(t)return t;last=d}
   else if(AI_KEY){const r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+MODELS[i%MODELS.length]+":generateContent",{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":AI_KEY},body:JSON.stringify({contents:[{parts:[{text:msgs.map(m=>m.content).join("\n\n")}]}]})});const d=await r.json();const t=d.candidates&&d.candidates[0].content.parts.map(x=>x.text||"").join("");if(t)return t;last=d}
   else{const r=await fetch("https://text.pollinations.ai/openai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:["openai","openai-large","mistral"][i%3],messages:msgs})});if(r.ok){const d=await r.json();const t=d.choices&&d.choices[0].message.content;if(t)return clean(t)}last=r.status}
- }catch(e){last=e}await sleep(3500*(i+1))}throw last};
+ }catch(e){last=e}await sleep(1000*(i+1))}throw last};
  return aiQ=aiQ.catch(()=>{}).then(run)}
 function pq(t){const a=t.indexOf("["),b=t.lastIndexOf("]");if(a<0||b<a)throw 0;const r=JSON.parse(t.slice(a,b+1).replace(/,\s*]/g,"]"));return r.filter(x=>x&&x.q&&Array.isArray(x.o)&&x.o.length>=2&&Number.isInteger(+x.a)&&+x.a<x.o.length).map(x=>({q:x.q,o:x.o,a:+x.a,e:x.e||""}))}
 async function aiJ(msgs){for(let i=0;i<3;i++){try{const r=pq(await ai(msgs));if(r.length)return r}catch(e){}}throw 0}
